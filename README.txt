@@ -1,3 +1,0 @@
--B1: chạy npm i
--B2: chạy npm start
--B3: mở giả lập để chạy web

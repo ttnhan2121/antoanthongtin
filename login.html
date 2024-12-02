@@ -7,13 +7,17 @@
     <!-- Thêm Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Thêm Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <!-- Thêm jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="#">Trang Chính</a>
+        <a class="navbar-brand" href="index.html">Trang Chính</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -22,11 +26,109 @@
 
 <!-- Nội dung Trang Chính -->
 <div class="container mt-5">
+    <!-- Tabs for Login and Sign Up Forms -->
+    <ul class="nav nav-tabs" id="authTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="loginTab" data-bs-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">Đăng Nhập</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="signUpTab" data-bs-toggle="tab" href="#signUp" role="tab" aria-controls="signUp" aria-selected="false">Đăng Ký</a>
+        </li>
+    </ul>
+    <div class="tab-content mt-3" id="authTabContent">
+        <!-- Login Form -->
+        <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="loginTab">
+            <form id="loginForm" method="POST">
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label">Tên người dùng</label>
+                    <input type="text" class="form-control" id="loginUsername" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-control" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+            </form>
+        </div>
 
+        <!-- Sign Up Form -->
+        <div class="tab-pane fade" id="signUp" role="tabpanel" aria-labelledby="signUpTab">
+            <form id="signUpForm" method="POST">
+                <div class="mb-3">
+                    <label for="signUpUsername" class="form-label">Tên người dùng</label>
+                    <input type="text" class="form-control" id="signUpUsername" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="signUpPassword" class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-control" id="signUpPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-success">Đăng Ký</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Thêm Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Thêm Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Xử lý form đăng nhập
+        $('#loginForm').submit(function(event) {
+            event.preventDefault(); // Ngừng hành động mặc định của form
+
+            let formData = {
+                'username': $('#loginUsername').val(),
+                'password': $('#loginPassword').val()
+            };
+
+
+            $.ajax({
+                url: 'http://localhost:3000/login',  // Thay đổi URL nếu cần thiết
+                type: 'POST',
+                contentType: 'application/json', // Gửi dữ liệu dưới dạng JSON
+                data: JSON.stringify(formData),  
+                success: function(response) {
+                    toastr.success('Đăng nhập thành công!');
+                    console.log(response);
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : 'Lỗi đăng nhập! Vui lòng kiểm tra lại.';
+                    toastr.error(errorMessage);
+                    console.error(xhr);
+                }
+            });
+        });
+
+        // Xử lý form đăng ký
+        $('#signUpForm').submit(function(event) {
+            event.preventDefault(); // Ngừng hành động mặc định của form
+
+            let formData = {
+                'username': $('#signUpUsername').val(),
+                'password': $('#signUpPassword').val()
+            };
+
+            $.ajax({
+                url: 'http://localhost:3000/signUp',  // Thay đổi URL nếu cần thiết
+                type: 'POST',
+                contentType: 'application/json', // Gửi dữ liệu dưới dạng JSON
+                data: JSON.stringify(formData),   // Chuyển đổi dữ liệu thành chuỗi JSON
+                success: function(response) {
+                    toastr.success('Đăng ký thành công!');
+                    console.log(response);
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : 'Lỗi đăng ký! Vui lòng kiểm tra lại.';
+                    toastr.error(errorMessage);
+                    console.error(xhr);
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

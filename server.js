@@ -7,7 +7,8 @@ const app = express();
 const upload = multer({ dest: 'uploads/' }); // Thư mục lưu file tạm thời
 
 app.use(cors()); // Enable CORS for all routes
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const logger = winston.createLogger({
     level: 'info',  // Mức log mặc định (có thể thay đổi: 'debug', 'info', 'warn', 'error')
@@ -25,7 +26,7 @@ const logger = winston.createLogger({
         ),
       })
     ],
-  });
+});
 // Hàm chuyển chuỗi thành mảng byte
 function stringToBytes(str) {
     const bytes = [];
@@ -34,6 +35,21 @@ function stringToBytes(str) {
     }
     return bytes;
 }
+
+const dataFile = 'dataUser.txt';
+
+const getUsersFromFile = () => {
+    if (!fs.existsSync(dataFile)) {
+        fs.writeFileSync(dataFile, JSON.stringify([]));
+        return [];
+    }
+    const data = fs.readFileSync(dataFile, 'utf-8');
+    return data ? JSON.parse(data) : [];
+};
+
+const saveUsersToFile = (users) => {
+    fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
+};
 
 // Hàm thực hiện băm SHA-256
 function sha256(input) {
@@ -155,6 +171,61 @@ app.post('/upload', upload.single('file'), (req, res) => {
     // Gửi kết quả băm về client
     res.send({ message: 'File uploaded and hashed successfully!', hash: hashedContent });
   });
+});
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).send({ error: 'Vui lòng điền Tài khoản và Mật khẩu' });
+    }
+
+    // Read users from the file
+    const users = getUsersFromFile();
+
+    // Find user with matching username
+    const user = users.find(u => u.username === username);
+
+    if (!user) {
+        return res.status(404).send({ error: 'Không tìm thấy user' });
+    }
+
+    // Hash the provided password and check if it matches the stored password hash
+    const hashedPassword = sha256(password).toString();
+
+    if (hashedPassword !== user.passwordHash) {
+        return res.status(401).send({ error: 'Sai mật khẩu' });
+    }
+
+    res.send({ message: 'Đăng nhập thành công' });
+});
+
+// SignUp route
+app.post('/signUp', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).send({ error: 'Vui lòng điền tài khoản và mật khẩu' });
+    }
+
+    // Check if the username already exists
+    const users = getUsersFromFile();
+    const existingUser = users.find(u => u.username === username);
+    if (existingUser) {
+        return res.status(409).send({ error: 'Username already exists' });
+    }
+
+    // Hash the password before storing
+    const hashedPassword = sha256(password).toString();
+
+    // Add the new user to the users list
+    const newUser = { username, passwordHash: hashedPassword };
+    users.push(newUser);
+
+    // Save the updated users list to the file
+    saveUsersToFile(users);
+
+    res.send({ message: 'Sign up successful!' });
 });
 
 // Khởi động server

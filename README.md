@@ -1,9 +1,13 @@
-## - B1: chạy 
+## Chuẩn bị 
+    Tải nodejs về máy https://nodejs.org/en/download/prebuilt-binaries/current
+    Tải extention Live Server trong VS Code
+
+## - B1: Chạy 
 ```
 npm i
 ```
-## - B2: chạy 
+## - B2: Chạy 
 ```
 npm start
 ```
-## - B3: mở XAMPP để chạy web
+## - B3: Chạy extension Live Server

@@ -18,27 +18,29 @@
     </div>
   </nav>
   <div class="container mt-3">
-    <h2 class="text-center mb-4">Upload File with Hashing</h2>
+    <h2 class="text-center mb-4">TOÀN VẸN DỮ LIỆU TRONG QUÁ TRÌNH TRUYỀN TẢI</h2>
     <div class="card shadow-sm p-4">
       <form id="uploadForm">
         <div class="form-group">
           <input type="file" id="fileInput" name="file" class="form-control-file" required />
         </div>
-        <div class="form-group">
-            <label>
-                <input type="checkbox" id="attackCheckbox"> The file has been attacked
+        <div class="form-group py-2">
+            <label style="color: red;">
+                <input type="checkbox" id="attackCheckbox"> Mô phỏng tệp đã bị tấn công
             </label>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Upload</button>
+        <button type="submit" class="btn btn-primary btn-block">Tải Lên</button>
       </form>
     </div>
 
     <div class="mt-5">
-      <h4>Client-Side Hashed Content:</h4>
-      <p id="clientHash" class="alert alert-secondary">No file hashed yet</p>
+      <h4>Nội Dung Băm ở Phía Người dùng</h4>
+      <p id="clientHash" class="alert alert-secondary">Chưa tải lên tệp</p>
 
-      <h4>Server-Side Hashed Content:</h4>
-      <p id="serverHash" class="alert alert-secondary">No file uploaded yet</p>
+      <h4>Nội Dung Băm ở Phía Máy Chủ</h4>
+      <p id="serverHash" class="alert alert-secondary">Chưa tải lên tệp</p>
+
+      <p id="attacked" style="color: white;" class="bg-danger alert alert-secondary d-none">Tệp tin đã bị tấn công</p>
     </div>
   </div>
 
@@ -57,11 +59,14 @@
     // Hàm thực hiện băm SHA-256
     function sha256(input) {
         const K = [
-            0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-            0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-            0xe49b69c1, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152,
-            0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x6ca6351e, 0x748f82ee, 0x78a5636f,
-            0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+          0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+          0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+          0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+          0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+          0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+          0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+          0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+          0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
         ];
 
         const H = [
@@ -175,6 +180,13 @@
           contentType: false,
           success: function(response) {
             $('#serverHash').text(response.hash);
+            if($('#serverHash').text() !== $('#clientHash').text()){
+              $('#attacked').removeClass('d-none');
+              $('#attacked').addClass('d-block');
+            }else{
+              $('#attacked').addClass('d-none');
+              $('#attacked').removeClass('d-block');
+            }
           },
           error: function() {
             alert('Error uploading file.');
